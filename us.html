@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>MULTICOMPARTE</title>
+        <meta name="description" content="Comparte tu mensaje de en varios grupos con 1 solo click.">
+        <link rel="stylesheet" href="css/style.css">
+        
+        <script>
+          window.fbAsyncInit = function() {
+            FB.init({
+              appId   : '1406195122990310',
+              xfbml   : false,
+              version : 'v2.0',
+              status  : true
+            });
+              
+            FB.ui(
+             {
+              method: 'feed'
+             }
+            );
+          };
+
+          (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/es_LA/sdk/debug.js" // Desarrollo
+            //js.src = "//connect.facebook.net/es_LA/sdk.js"; // Produccion
+            fjs.parentNode.insertBefore(js, fjs);
+           }(document, 'script', 'facebook-jssdk'));
+    </script>
+    </head>
+    <body>
+       
+    </body>
+</html>
