@@ -61,15 +61,40 @@
    js.src = "//connect.facebook.net/en_US/all.js";
    ref.parentNode.insertBefore(js, ref);
   }(document));
-
+    var gruposUsuario;
+    var permisosUsuario;
   // Here we run a very simple test of the Graph API after login is successful. 
   // This testAPI() function is only called in those cases. 
   function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
       console.log('Good to see you, ' + response.name + '.');
+        revisarPermisos();
     });
   }
+    
+    function revisarPermisos(){
+        FB.api('/me/permissions', function(response){
+            permisosUsuario = response.data[0];
+            if(typeof permisosUsuario.user_groups !== 'undefined' &&
+              permisosUsuario.user_groups === 1)
+                enlistarGrupos();
+            else
+                pedirPermisosAccesoGrupos();            
+        });
+    }
+    
+    function pedirPermisosAccesoGrupos(){
+        FB.login(function(response) {
+           revisarPermisos();
+         }, {scope: 'user_groups', auth_type: 'rerequest'});
+    }    
+    
+    function enlistarGrupos(){
+        FB.api('/me/groups', function(response){
+            gruposUsuario = response.data;
+        });
+    }
 </script>
 
 <!--
