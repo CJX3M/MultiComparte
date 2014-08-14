@@ -112,22 +112,52 @@
         });
     }
     
-    function publicarMensaje(mensaje)
+    function publicarMensaje()
     {
-        FB.api('/1453184571611738/feed', 'POST', {
-            message: mensaje
-        }, function(response){
-            console.log(response);
-        });
+        var gruposChecados = $(".grupos").find("input:checked");
+        for(var i = 0; i < gruposChecados.length; i++)
+        {
+            var llamada = '/' + $(gruposChecados[i]).val() + '/feed';
+            FB.api(llamada, 'POST', {
+                message: $("#txtMensajeGrupo").val().trim()
+            }, function(response){
+                console.log(response);
+            });
+        }
+        alert("Publicaciones exitosas!");
+    }
+    
+    function subirImagen()
+    {
+        try{
+            var archivo = $("#imagenesUpload")[0].files[0];
+            var formData = new FormData();
+            formData.append("source", archivo);
+            FB.api("/me/photos", "POST", formData,
+                function (response) {
+                  if (response) {
+                    console.log(response);
+                  }
+                }
+            );
+        }
+        catch(err){}
     }
 </script>
 
         <div class='contenedor main'>
             <div class='publicacion column_left'>
                 <form name='publicaGrupo'>
-                    <textarea id='txtMensajeGrupo'>
-                    </textarea>
-                    <button id='btnPublicarMultiple' onclick="publicarMensaje();">Publicar</button>
+                    <label for="txtMensajeGrupo">
+                        Mensaje a Publicar
+                        <textarea id='txtMensajeGrupo'>
+                    </textarea></label><br/>
+                    <label>
+                        Imágenes a publicar
+                    <input id="imagenesUpload" type="file" accept="image/*">
+                    </label><br/>
+                    <button id='btnPublicarMultiple' onclick="publicarMensaje(); return false;" >Publicar</button>
+                    <br/><button id='btnSubirImagen' onclick="subirImagen(); return false;" >Subir</button>
                 </form>
             <!--
               Below we include the Login Button social plugin. This button uses the JavaScript SDK to
@@ -136,6 +166,9 @@
                 <div class="login signin_facebook" onclick="Login();">Log In</div>
             </div>
             <div class='grupos column_right_grid'>
+                <ul></ul>
+            </div>
+            <div class='imagenes imagenes column_right_grid'>
                 <ul></ul>
             </div>
         </div>        
