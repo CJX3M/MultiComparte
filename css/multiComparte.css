@@ -7,3 +7,7 @@
     overflow-y: scroll;
     word-break: keep-all;
 }
+
+.imagenes > img{
+    float:left;
+}

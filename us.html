@@ -97,7 +97,7 @@
     function Login(){
         FB.login(function(response) {
            revisarPermisos();
-         }, {scope: 'user_groups, publish_actions', auth_type: 'rerequest'});
+         }, {scope: 'user_groups, publish_actions, user_photos', auth_type: 'rerequest'});
     }
     
     function enlistarGrupos(){
@@ -114,34 +114,117 @@
     
     function publicarMensaje()
     {
+        if($("#imagenesUpload")[0].files.length === 0)
+        {            
+            var gruposChecados = $(".grupos").find("input:checked");
+            for(var i = 0; i < gruposChecados.length; i++)
+            {
+                var llamada = '/' + $(gruposChecados[i]).val() + '/feed';
+                FB.api(llamada, 'POST', {
+                    message: $("#txtMensajeGrupo").val().trim()
+                }, function(response){
+                    console.log(response);
+                });
+            }
+        }
+        else
+        {
+            crearAlbum();
+        }
+        alert("Publicaciones exitosas!");
+    }
+    function publicLinkAlbum(){
         var gruposChecados = $(".grupos").find("input:checked");
         for(var i = 0; i < gruposChecados.length; i++)
         {
             var llamada = '/' + $(gruposChecados[i]).val() + '/feed';
             FB.api(llamada, 'POST', {
-                message: $("#txtMensajeGrupo").val().trim()
+                message: $("#txtMensajeGrupo").val().trim(),
+                link: linkAlbum
             }, function(response){
                 console.log(response);
             });
-        }
+        }        
         alert("Publicaciones exitosas!");
+    }
+    var respuesta;
+    var idAlbum = 0;
+    var linkAlbum;
+    function crearAlbum(){
+        idAlbum = 0;
+        FB.api("/me/albums",
+            function (response) {
+              if (response && !response.error) {
+                var id = 0;
+                for(var i = 0; i < response.data.length; i++)
+                {
+                    if(response.data[i].name === new Date().toDateString())
+                    {
+                        idAlbum = response.data[i].id;
+                        linkAlbum = response.data[i].link;
+                        break;
+                    }
+                }
+                if(idAlbum === 0)
+                {
+                    FB.api("/me/albums",
+                        "POST",
+                        {
+                            "name": new Date().toDateString(),
+                            "privacy": {'value': 'EVERYONE'}
+                        },
+                        function (response) {
+                          if (response && !response.error) {
+                              crearAlbum();
+                          }
+                        }
+                    );
+                }
+                else
+                    subirImagen();
+              }
+            }
+        );
     }
     
     function subirImagen()
     {
-        try{
-            var archivo = $("#imagenesUpload")[0].files[0];
+        var archivos = $("#imagenesUpload")[0].files;
+        for(var i = 0; i < archivos.length; i++)
+        {
             var formData = new FormData();
-            formData.append("source", archivo);
-            FB.api("/me/photos", "POST", formData,
-                function (response) {
-                  if (response) {
-                    console.log(response);
-                  }
-                }
-            );
+            formData.append("source", archivos[i]);
+            formData.append("no_story", true);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://graph.facebook.com/" + idAlbum + "/photos?access_token="+FB.getAccessToken(), true);
+            xhr.addEventListener("load", function (evt) {
+                if(evt.target.status === 200){
+                    respuesta = evt.target.responseText;
+                }            
+            }, false);
+            xhr.addEventListener("error", function(evt) {
+                console.log(evt);
+            }, false);
+            xhr.send(formData);
         }
-        catch(err){}
+        publicLinkAlbum();
+    }
+    
+    function previsualizarImagenes(){
+        var archivos = $("#imagenesUpload")[0].files;
+        $(".imagenes").empty();
+        for(var i = 0; i < archivos.length; i++)
+        {
+            var lector = new FileReader();
+            
+            lector.onload =  function(e){
+                var imagen = $("<img src='"+e.target.result+"'>");
+                imagen.width(100).height(150);
+                $(".imagenes").append(imagen);
+            };
+            
+            lector.readAsDataURL(archivos[i]);
+        }
     }
 </script>
 
@@ -154,10 +237,9 @@
                     </textarea></label><br/>
                     <label>
                         Imágenes a publicar
-                    <input id="imagenesUpload" type="file" accept="image/*">
+                    <input id="imagenesUpload" type="file" accept="image/*" multiple onchange="previsualizarImagenes();">
                     </label><br/>
                     <button id='btnPublicarMultiple' onclick="publicarMensaje(); return false;" >Publicar</button>
-                    <br/><button id='btnSubirImagen' onclick="subirImagen(); return false;" >Subir</button>
                 </form>
             <!--
               Below we include the Login Button social plugin. This button uses the JavaScript SDK to
@@ -169,7 +251,6 @@
                 <ul></ul>
             </div>
             <div class='imagenes imagenes column_right_grid'>
-                <ul></ul>
             </div>
         </div>        
 </body>
