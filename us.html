@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <!-- Mobile support -->
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Comparte tu mensaje de en varios grupos con 1 solo click.">
+        <meta name="description" content="Comparte tu mensaje en varios grupos con 1 solo click.">
         <title>MULTICOMPARTE</title>
 
         <!-- Twitter Bootstrap -->
@@ -15,46 +15,81 @@
         <link href="css/roboto.css" rel="stylesheet">
         <link href="css/material.css" rel="stylesheet">
         <link href="css/ripples.css" rel="stylesheet">
-        <link href="css/multiComparte.css" rel="stylesheet"     >
+        <link href="css/multiComparte.css" rel="stylesheet">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src="//www.parsecdn.com/js/parse-1.6.7.min.js"></script>
         <script src="js/parseMC.js"></script>
+        <script src="js/fb.js"></script>
         <script src="js/ripples.min.js"></script>
         <script src="js/material.min.js"></script>
-        <script src="js/fb.js"></script>
         <script src="js/multiComparte.js"></script>
     </head>
     <body>
-<script>
-</script>
         <div class="navbar navbar-default">
             <!--
               Below we include the Login Button social plugin. This button uses the JavaScript SDK to
               present a graphical Login button that triggers the FB.login() function when clicked. -->
 <!--            <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>-->
-                <a href="#" class="btn btn-info" onclick="Login();">Log In</a>
+                <a href="#" class="btn btn-info Login" onclick="Login();">Log In</a>
         </div>
         <div>
-            <div class='form-group fluid-container'>
+            <div class="fluid-container">
                 <div class="row">
                     <div class="col-md-4 col-sm-5 col-xs-6">
-                        <form name='publicaGrupo'>
-                            <textarea id='txtMensajeGrupo' class="form-control floating-label" placeholder="Mensaje a Publicar"></textarea>
-                            <label class="control-label">Imágenes a publicar</label>                  
-                            <input id="imagenesUpload" type="file" class="btn btn-default btn-raised" accept="image/*" multiple onchange="previsualizarImagenes();">
-                            <button id='btnPublicarMultiple' class="btn btn-primary" onclick="publicarMensaje(); return false;" >Publicar</button>
+                        <form name="publicaGrupo">
+                            <div class="form-group">
+                                <textarea id="txtMensajeGrupo" class="form-control floating-label" placeholder="Mensaje a Publicar"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Imágenes a publicar</label>                  
+                                <input id="imagenesUpload" type="file" class="btn btn-default btn-raised" accept="image/*" multiple onchange="previsualizarImagenes();">
+                            </div>
+                            <div class="form-group">
+                                <input type="url" id="txtLink" style="display:none" class="form-control floating-label" placeholder="Link a publicar"/>
+                            </div>
+                            <div class="form-group">
+                                <textarea id="txtEnlistarGrupos" style="display:none" class="form-control floating-label" placeholder="Grupos a publicar" title="Favor de separar los Id's de los grupos con comas"></textarea>
+                            </div>
+                            <button id="btnPublicarMultiple" class="btn btn-primary" onclick="publicarMensaje(); return false;" >Publicar</button>
                         </form>
                     </div>
                     <div class="col-md-8 col-sm-7 col-xs-6">
-                        <div class='grupos'>
+                        <div class="grupos">
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class='imagenes column_right_grid'>
+                    <div class="imagenes column_right_grid">
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
+        <div>
+            <table id="repeticiones" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            Mensaje
+                        </th>
+                        <th>
+                            Grupo
+                        </th>
+                        <th>
+                            Activar Repetición
+                        </th>                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-depth="0" class="collapse level0">
+                        <td colspan="3"><i class="mdi-content-add toggle"></i>Mensaje</td>
+                    </tr>
+                    <tr data-depth="1" class="collapse level1">
+                        <td colspan="2">Grupo</td>
+                        <td><div class="checkbox"><input type="checkbox"/></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 </body>
 </html>

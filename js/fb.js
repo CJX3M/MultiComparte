@@ -1,7 +1,8 @@
-var LoggedUser;
+var UsuarioActual;
 
 window.fbAsyncInit = function () {
     'use strict';
+/*
     $.ajaxSetup({cache: true});
     $.getScript('//connect.facebook.net/en_US/all.js', function(){
       FB.init({
@@ -10,7 +11,16 @@ window.fbAsyncInit = function () {
         cookie     : true, // enable cookies to allow the server to access the session
         xfbml      : true,  // parse XFBML
         version    : 'v2.0'  
-      }); 
+      });
+    });
+*/
+    Parse.FacebookUtils.init({ // this line replaces FB.init({
+      appId      : '1406195122990310', // Facebook App ID
+      status     : true,  // check Facebook Login status
+      cookie     : true,  // enable cookies to allow Parse to access the session
+      xfbml      : true,  // initialize Facebook social plugins on the page
+      version    : 'v2.0' // point to the latest Facebook Graph API version
+    });
     // Run code after the Facebook SDK is loaded.
     FB.getLoginStatus(function (response) {
         statusChangeCallback(response);
@@ -52,15 +62,22 @@ var permisosUsuario;
 
 function Login () {
     'use strict';
-    /*FB.login(function(response) {
-        //revisarPermisos();
-        enlistarAlbums();
-     }, {scope: 'user_groups, publish_actions, user_photos', auth_type: 'rerequest'});*/
     Parse.FacebookUtils.logIn('user_groups, publish_actions, user_photos', {
         success: function(user) {
             $(".login").hide();
-            revisarPermisos();
-            LoggedUser = user;
+            UsuarioActual = new Usuario();
+            UsuarioActual.UsuarioID = user;
+            new Promise(function(resolve, reject){
+                UsuarioActual.Buscar(resolve, resolve);
+            }).then(function () {
+                if (UsuarioActual.id === undefined) {
+                    UsuarioActual.Save();
+                }
+            }).then(function () {
+                revisarPermisos();
+            }).catch(function (err) {
+                console.error(err);
+            });
         },
         error: function (user, error) {
             alert("User cancelled the Facebook login or did not fully authorize.");
