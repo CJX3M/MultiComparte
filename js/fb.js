@@ -2,25 +2,25 @@ var UsuarioActual;
 
 window.fbAsyncInit = function () {
     'use strict';
-/*
     $.ajaxSetup({cache: true});
-    $.getScript('//connect.facebook.net/en_US/all.js', function(){
+    $.getScript('https://connect.facebook.net/en_US/all.js', function(){
       FB.init({
         appId      : '1406195122990310',
         status     : true, // check login status
         cookie     : true, // enable cookies to allow the server to access the session
         xfbml      : true,  // parse XFBML
-        version    : 'v2.0'  
+        version    : 'v2.1'  
       });
     });
-*/
+/*
     Parse.FacebookUtils.init({ // this line replaces FB.init({
       appId      : '1406195122990310', // Facebook App ID
       status     : true,  // check Facebook Login status
       cookie     : true,  // enable cookies to allow Parse to access the session
       xfbml      : true,  // initialize Facebook social plugins on the page
-      version    : 'v2.0' // point to the latest Facebook Graph API version
+      version    : 'v2.6' // point to the latest Facebook Graph API version
     });
+*/
     // Run code after the Facebook SDK is loaded.
     FB.getLoginStatus(function (response) {
         statusChangeCallback(response);
@@ -28,15 +28,13 @@ window.fbAsyncInit = function () {
 
 };
 
-(function (d, s, id) {
-    'use strict';
+(function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) { return; }
-    js = d.createElement(s);
-    js.id = id;
-    js.src = "//connect.facebook.net/en_US/sdk.js";
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
     fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
+  }(document, 'script', 'facebook-jssdk'));
 
 // This is called with the results from from FB.getLoginStatus().
 function statusChangeCallback(response) {
@@ -48,12 +46,13 @@ function statusChangeCallback(response) {
     // Full docs on the response object can be found in the documentation
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
+        obtenerUsuario();
         // Logged into your app and Facebook.
-        Login();
     } else if (response.status === 'not_authorized') {
         // return to main page
     } else {
         // return to main page
+        Login();
     }
 }
 
@@ -62,32 +61,26 @@ var permisosUsuario;
 
 function Login () {
     'use strict';
-    Parse.FacebookUtils.logIn('user_groups, publish_actions, user_photos', {
-        success: function(user) {
-            $(".login").hide();
-            UsuarioActual = new Usuario();
-            UsuarioActual.UsuarioID = user;
-            new Promise(function(resolve, reject){
-                UsuarioActual.Buscar(resolve, resolve);
-            }).then(function () {
-                if (UsuarioActual.id === undefined) {
-                    UsuarioActual.Save();
-                }
-            }).then(function () {
-                revisarPermisos();
-            }).catch(function (err) {
-                console.error(err);
-            });
-        },
-        error: function (user, error) {
-            alert("User cancelled the Facebook login or did not fully authorize.");
-        }
-    });
+    FB.login(function(response){
+        $(".login").hide();
+        UsuarioActual = response;
+        revisarPermisos();
+    }, {scope:'public_profile,email,user_managed_groups,user_posts,publish_actions,manage_pages,read_stream,publish_pages'});
 }
 
 
 function obtenerUsuario(){
     FB.api("/me", function(response){
-        LoggedUser = user;
+        LoggedUser = response;
     });
+}
+
+function ActualizarPost() {
+    FB.api("/615950401903143/sharedposts", function(response){
+        response.data.forEach(function(message, index){
+           FB.api("/" + message.id, "POST", {"message":"."}, function(response){
+               console.log(response);
+           }); 
+        });
+    });    
 }

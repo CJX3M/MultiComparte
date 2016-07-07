@@ -71,13 +71,13 @@ function revisarPermisos() {
             }
         }
         if(continuar) { 
-            ObtenerDetallesUsuario();
+            EnlistarGrupos();
         }
         else Login();
     });
 }
 
-function ObtenerDetallesUsuario(){
+/*function ObtenerDetallesUsuario(){
     new Promise(function (resolve, reject) {
         Grupo.ObtenerGrupos(resolve);
     }).then(function () {
@@ -93,7 +93,7 @@ function ObtenerDetallesUsuario(){
     }).catch(function (err) {
         console.error(err); 
     });
-}
+}*/
 
 function EnlistarGrupos(){
     var divGrupos = $(".grupos"), i;
@@ -103,24 +103,6 @@ function EnlistarGrupos(){
             gruposUsuario = response.data;
             for(i = 0; i < gruposUsuario.length; i++)
             {
-                var gruposNoEncontrados = [];
-                var grupo = UsuarioActual.GruposUsuario.filter(function (g) {
-                    return g.GrupoID === gruposUsuario[i].id
-                });
-                if(grupo === undefined) {
-                    grupo.GrupoID = gruposUsuario[i].id;
-                    grupo.Usuario = UsuarioActual;
-                    grupo.Nombre = gruposUsuario[i].name
-                    console.log("Grupo a buscar" + grupo.GrupoID);
-                    grupo.Buscar().then(function (resultado) {
-                        if (resultado.length === 0) {
-                            gruposNoEncontrados.push(grupo);
-                        }
-                    });
-                    if(gruposNoEncontrados.length > 0) {
-                        Parse.Object.saveAll(gruposNoEncontrados, function)
-                    }
-                }
                 var opcion = $("<div class='checkbox'><label><input type='checkbox' value='" + 
                                gruposUsuario[i].id + "'>" + gruposUsuario[i].name + "</label></div>"); 
                 divGrupos.append(opcion);
@@ -128,130 +110,114 @@ function EnlistarGrupos(){
             $.material.init();
         });
     } else {
-        new Promise(function (resolve, reject) {
-            for(i = 0; i < UsuarioActual.GruposUsuario.length; i++)
-            {
-                FB.api('/' + UsuarioActual.GruposUsuario[i].GrupoID, function(response) {
-                    UsuarioActual.GruposUsuario[i].Nombre = response.data[0].name
-                    var opcion = $("<div class='checkbox'><label><input type='checkbox' value='" + 
-                                   UsuarioActual.GruposUsuario[i].GrupoID + "'>" + UsuarioActual.GruposUsuario[i].Nombre + "</label></div>"); 
-                    divGrupos.append(opcion);
-                });                
-            }            
-            resolve();
-        }).then(function () {
-            $.material.init();
-            $("#txtEnlistarGrupos").Show();            
-        });
+        
+//FB.api("/615950401903143/sharedposts", function(response){console.log(response);})
     }
 }
-
-function EnlistarPost() {
-    var i;
-    for(i = 0; i < UsuarioActual.Posts.length; i++) {
-        FB.api("/" + UsuarioActual.Posts[i].PostID, function(response){
-            if(response || !response.error) {
-                UsuarioActual.Posts[i].mensaje = response.message;
-                UsuarioActual.Posts[i].link = response.link;
-                UsuarioActual.Posts[i].caption = response.caption;
-            }            
-        });
-    }
-}
-
-function EnlistarRepeticiones() {
-    $.each(UsuarioActual.Repeticiones, function(index, value){
-        var i;
-        var post = UsuarioActual.Posts.filter(function (p) { return p.PostID === value.PostID });
-        var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === post.Grupo.GrupoID });
-        /*for (i = 0; i < UsuarioActual.Posts.length; i++) {
-            if(value.PostID == UsuarioActual.Posts[i].PostID) {
-                value.post = UsuarioActual.Posts[i];
-                break;
-            }
-        }
-        for (i = 0; i < UsuarioActual.Grupos.length; i++) {
-            if(value.post.Grupo == UsuarioActual.Grupos[i].GrupoID) {
-                value.post.Grupo = UsuarioActual.Grupos[i];
-                break;
-            }
-        }*/
-        //AgregarRepeticionTabla(value.post.mensaje, value.post.PostID, value.post.Grupo.nombre, value.Frecuencia);
-        AgregarRepeticionTabla(post.mensaje, post.PostID, grupo.nombre, value.Frecuencia);
-    })
-    $.each(UsuarioActual.Posts, function(index, value){
-        //var i;
-        /*for (i = 0; i < UsuarioActual.Grupos.length; i++) {
-            if(value.Grupo == UsuarioActual.Grupos[i].GrupoID) {
-                value.Grupo = UsuarioActual.Grupos[i];
-                break;
-            }
-        }*/
-        //AgregarRepeticionTabla(value.mensaje, value.PostID, value.Grupo.nombre, 0);
-        var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === value.Grupo.GrupoID });
-        AgregarRepeticionTabla(value.mensaje, value.PostID, grupo.nombre, 0);
-    })
-}
-
-function AgregarRepeticionTabla(mns, mnsId, nombreGrupo, frecuencia) {
-    var tabla = $("#repeticiones");
-    var td = tabla.find("td").filter(function() {
-        return $(this).text() == mns;
-    });
-    if (td.length == 0) {
-        td = $("<tr data-depth=\"0\" class=\"collapse level0\">" +
-               "<td colspan=\"3\"><i class=\"mdi-content-add toggle\"></i>" + msn + "</td></tr>");
-        tabla.append(td);
-    }
-    var tdHijo = $("<tr data-depth=\"1\" class=\"collapse level1\">" +
-                    "<td colspan=\"2\">" + nombreGrupo + "</td>" +
-                    "<td><div class=\"checkbox\"><input type=\"checkbox\" onclick=\"" +
-                        "ActivarRepeticion(this, " + mnsId + ");\" " + 
-                        (frecuencia == 1 ? "checked" : "") + "/></div></td>" +
-                    "</tr>")
-    td.after(tdHijo);
-}
-
-function ActivarRepeticion(check, msnId) {
-    if($(check).is(":checked")) {
-        Repeticiones.Activar(msnId, 1);
-    } else {
-        Repeticiones.Activar(msnId, 0);
-    }
-}
+//
+//function EnlistarPost() {
+//    var i;
+//    for(i = 0; i < UsuarioActual.Posts.length; i++) {
+//        FB.api("/" + UsuarioActual.Posts[i].PostID, function(response){
+//            if(response || !response.error) {
+//                UsuarioActual.Posts[i].mensaje = response.message;
+//                UsuarioActual.Posts[i].link = response.link;
+//                UsuarioActual.Posts[i].caption = response.caption;
+//            }            
+//        });
+//    }
+//}
+//
+//function EnlistarRepeticiones() {
+//    $.each(UsuarioActual.Repeticiones, function(index, value){
+//        var i;
+//        var post = UsuarioActual.Posts.filter(function (p) { return p.PostID === value.PostID });
+//        var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === post.Grupo.GrupoID });
+//        /*for (i = 0; i < UsuarioActual.Posts.length; i++) {
+//            if(value.PostID == UsuarioActual.Posts[i].PostID) {
+//                value.post = UsuarioActual.Posts[i];
+//                break;
+//            }
+//        }
+//        for (i = 0; i < UsuarioActual.Grupos.length; i++) {
+//            if(value.post.Grupo == UsuarioActual.Grupos[i].GrupoID) {
+//                value.post.Grupo = UsuarioActual.Grupos[i];
+//                break;
+//            }
+//        }*/
+//        //AgregarRepeticionTabla(value.post.mensaje, value.post.PostID, value.post.Grupo.nombre, value.Frecuencia);
+//        AgregarRepeticionTabla(post.mensaje, post.PostID, grupo.nombre, value.Frecuencia);
+//    })
+//    $.each(UsuarioActual.Posts, function(index, value){
+//        //var i;
+//        /*for (i = 0; i < UsuarioActual.Grupos.length; i++) {
+//            if(value.Grupo == UsuarioActual.Grupos[i].GrupoID) {
+//                value.Grupo = UsuarioActual.Grupos[i];
+//                break;
+//            }
+//        }*/
+//        //AgregarRepeticionTabla(value.mensaje, value.PostID, value.Grupo.nombre, 0);
+//        var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === value.Grupo.GrupoID });
+//        AgregarRepeticionTabla(value.mensaje, value.PostID, grupo.nombre, 0);
+//    })
+//}
+//
+//function AgregarRepeticionTabla(mns, mnsId, nombreGrupo, frecuencia) {
+//    var tabla = $("#repeticiones");
+//    var td = tabla.find("td").filter(function() {
+//        return $(this).text() == mns;
+//    });
+//    if (td.length == 0) {
+//        td = $("<tr data-depth=\"0\" class=\"collapse level0\">" +
+//               "<td colspan=\"3\"><i class=\"mdi-content-add toggle\"></i>" + msn + "</td></tr>");
+//        tabla.append(td);
+//    }
+//    var tdHijo = $("<tr data-depth=\"1\" class=\"collapse level1\">" +
+//                    "<td colspan=\"2\">" + nombreGrupo + "</td>" +
+//                    "<td><div class=\"checkbox\"><input type=\"checkbox\" onclick=\"" +
+//                        "ActivarRepeticion(this, " + mnsId + ");\" " + 
+//                        (frecuencia == 1 ? "checked" : "") + "/></div></td>" +
+//                    "</tr>")
+//    td.after(tdHijo);
+//}
+//
+//function ActivarRepeticion(check, msnId) {
+//    if($(check).is(":checked")) {
+//        Repeticiones.Activar(msnId, 1);
+//    } else {
+//        Repeticiones.Activar(msnId, 0);
+//    }
+//}
 
 var gruposSeleccionados;
 var opcionesMensaje;
 
 function publicarMensaje() {
     gruposSeleccionados = [];
-    if (!verificarHoraUltimoPost()) {
-        return;
-    }
-    if (!revisarCantidadGrupos()) {
-        return;
-    }
-    if($("#imagenesUpload")[0].files.length === 0 && opcionesMensaje === undefined) {
+    if($("#imagenesUpload")[0].files.length !== 0) {
         crearAlbum();
     } else {
+        if(opcionesMensaje === undefined)
+            opcionesMensaje = {};
         $(".grupos input:checked").map(function(){
             gruposSeleccionados.push(this.value);
         });
         opcionesMensaje.message = $("#txtMensajeGrupo").val().trim();
         if($("#txtLink").val() !== "")
-            opcionesMensaje.link = $("#txtLinkPublic").val();
+            opcionesMensaje.link = $("#txtLink").val();
         if(gruposSeleccionados.length > 0) {
             for (i = 0; i < gruposSeleccionados.length; i++) {
                 Publicar(gruposSeleccionados[i], opcionesMensaje, function(response) {
-                    var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === gruposSeleccionados[i]});
-                    GuardarRespuesta(response, grupo);
-                    opcionesMensaje = undefined;
-                    UsuarioActual.HoraUltimoPost = new Date();
-                    UsuarioActual.Save();
+                    //var grupo = UsuarioActual.Grupos.filter(function (g) { return g.GrupoID === gruposSeleccionados[i]});
+                    //GuardarRespuesta(response, grupo);
+                    //opcionesMensaje = undefined;
+                    //UsuarioActual.HoraUltimoPost = new Date();
+                    //UsuarioActual.Save();
+                    console.log(response);
                 });
             }
         }
-        if (!permiteGrupos && $("#txtEnlistarGrupos").val() !== "") {
+        /*if (!permiteGrupos && $("#txtEnlistarGrupos").val() !== "") {
             var gruposEnlistados = $("#txtEnlistarGrupos").val().split(","), i;
             for (i = 0; i < gruposEnlistados[i]; i++) {
                 if (gruposSeleccionados.indexOf(gruposEnlistados[i]) < 0) {
@@ -273,7 +239,7 @@ function publicarMensaje() {
                     });
                 }
             }
-        }
+        }*/
         ResetearForma();
     }
 }
@@ -369,13 +335,13 @@ function previsualizarImagenes() {
     }
 }
 
-function GuardarRespuesta(respuesta, grupo) {
+/*function GuardarRespuesta(respuesta, grupo) {
     var mensaje = new Post();
     mensaje.PostID = respuesta;
     mensaje.Grupo = grupo;
     mensaje.Usuario = UsuarioActual;
     mensaje.Save();
-}
+}*/
 
 function ResetearForma() {
     $("textarea").val("");
